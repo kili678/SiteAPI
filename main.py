@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS  # 👈 import du module
 
 app = Flask(__name__)
+CORS(app)  # 👈 active CORS pour toutes les routes
 
 # Stockage en mémoire vive
 data = {
@@ -16,7 +18,7 @@ data = {
 
 @app.route("/owner", methods=["GET"])
 def get_owner_and_peches():
-    return jsonify(data)  # 👈 tout renvoyé ici
+    return jsonify(data)
 
 @app.route("/update", methods=["POST"])
 def update_data():
@@ -28,7 +30,6 @@ def update_data():
 
     data["owner"] = json_data["owner"]
 
-    # Mise à jour des péchés (si présents)
     for peche in data:
         if peche != "owner" and peche in json_data:
             data[peche] = json_data[peche]
