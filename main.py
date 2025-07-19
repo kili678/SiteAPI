@@ -30,7 +30,7 @@ PECHEURS_ROLE = "Pécheurs"
 PECHE_S_CAPITAUX = [
     "Luxure", "Colère", "Envie", "Paresse", "Orgueil", "Gourmandise", "Avarice"
 ]
-
+@app.route('/owner')
 def send_data_to_api(owner_name, players_dict):
     url = "https://siteapi-2.onrender.com/update"
     payload = {
