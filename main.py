@@ -7,7 +7,7 @@ CORS(app)
 data = {
     "owner": "inconnu",
     "Luxure": "aucun",
-    "Colere": "aucun",
+    "Colère": "aucun",
     "Envie": "aucun",
     "Paresse": "aucun",
     "Orgueil": "aucun",
