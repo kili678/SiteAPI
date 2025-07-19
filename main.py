@@ -21,7 +21,7 @@ def keep_alive():
     thread = threading.Thread(target=run_flask)
     thread.start()
 
-# ========== DISCORD BOT CONFIGURATION ==========
+# ========== DISCORD BOT ==========
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='', intents=intents)
 
@@ -31,36 +31,33 @@ PECHE_S_CAPITAUX = [
 ]
 
 def send_data_to_api(owner_name, players_dict):
-    url = "https://siteapi-2.onrender.com/owner"  # Ne pas modifier ce endpoint
+    url = "https://siteapi-2.onrender.com/owner"  # 🔁 Assure-toi que cette URL correspond à ton API
 
-    # On crée un dictionnaire à plat avec owner + chaque péché
+    # Payload à plat
     payload = {
         "owner": owner_name,
-        **players_dict  # fusionne les péchés à la racine
+        **players_dict
     }
 
     try:
         response = requests.post(url, json=payload, timeout=10)
         if response.status_code == 200:
-            print(f"[API] ✅ Données envoyées pour owner: {owner_name}")
+            print(f"[API] ✅ Données envoyées à /owner : {owner_name}")
         else:
-            print(f"[API] ⚠️ Code {response.status_code} : {response.text}")
+            print(f"[API] ⚠️ Erreur HTTP {response.status_code} : {response.text}")
     except requests.exceptions.Timeout:
-        print(f"[API] ⏱️ Timeout vers l'API")
+        print("[API] ⏱️ Timeout vers l'API")
     except requests.exceptions.ConnectionError:
-        print(f"[API] 🔌 Erreur de connexion vers l'API")
+        print("[API] 🔌 Erreur de connexion")
     except Exception as e:
-        print(f"[API] ❌ Erreur lors de l'envoi : {e}")
+        print(f"[API] ❌ Exception lors de l'envoi : {e}")
 
 async def periodic_task():
     await bot.wait_until_ready()
-    print("[Bot] Tâche périodique démarrée")
+    print("[Bot] 🚀 Tâche périodique lancée")
 
     while not bot.is_closed():
         try:
-            if not bot.is_ready():
-                await asyncio.sleep(10)
-                continue
             if not bot.guilds:
                 await asyncio.sleep(30)
                 continue
@@ -85,16 +82,14 @@ async def periodic_task():
                 players[peche] = joueur.name if joueur else "Place vacante"
 
             send_data_to_api(owner_name, players)
-            print(f"[Bot] ✅ Données des 7 péchés envoyées")
-
         except Exception as e:
-            print(f"[Erreur] tâche périodique : {e}")
+            print(f"[Bot] ❌ Erreur dans la tâche périodique : {e}")
 
         await asyncio.sleep(60)
 
 @bot.event
 async def on_ready():
-    print(f"✅ Bot connecté en tant que {bot.user}")
+    print(f"✅ Connecté en tant que {bot.user}")
     bot.loop.create_task(periodic_task())
 
 @bot.command()
@@ -137,6 +132,6 @@ if __name__ == '__main__':
     keep_alive()
     token = os.environ.get('TOKEN')
     if not token:
-        print("Erreur : TOKEN non défini dans les variables d'environnement.")
+        print("❌ TOKEN manquant dans les variables d'environnement.")
         exit(1)
     bot.run(token)
