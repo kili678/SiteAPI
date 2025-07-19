@@ -18,7 +18,7 @@ data = {
 def get_owner():
     return jsonify({"owner": data["owner"]})
 
-@app.route("/peches", methods=["GET"])
+@app.route("/owner", methods=["GET"])
 def get_peches():
     peches = {k: v for k, v in data.items() if k != "owner"}
     return jsonify(peches)
