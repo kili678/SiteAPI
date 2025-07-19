@@ -2,11 +2,17 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Pour autoriser les appels CORS
+CORS(app)
 
 data = {
     "owner": "inconnu",
-    "PL": "aucun"
+    "Luxure": "aucun",
+    "Colère": "aucun",
+    "Envie": "aucun",
+    "Paresse": "aucun",
+    "Orgueil": "aucun",
+    "Gourmandise": "aucun",
+    "Avarice": "aucun"
 }
 
 @app.route('/update', methods=['POST'])
@@ -17,12 +23,14 @@ def update():
         return jsonify({"error": "Aucun JSON reçu"}), 400
 
     owner = content.get("owner")
-    pl = content.get("PL")
-
     if owner:
         data["owner"] = owner
-    if pl:
-        data["PL"] = pl
+
+    for peche in data.keys():
+        if peche != "owner":
+            val = content.get(peche)
+            if val:
+                data[peche] = val
 
     return jsonify({"message": "Données mises à jour"}), 200
 
