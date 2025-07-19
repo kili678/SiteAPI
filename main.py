@@ -2,20 +2,33 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
-# Stockage temporaire (mémoire vive du serveur)
+CORS(app)  # Pour autoriser les appels CORS
+
 data = {
-    "owner": "Aucun encore"
+    "owner": "inconnu",
+    "PL": "aucun"
 }
 
-@app.route("/owner", methods=["GET"])
-def get_owner():
-    return jsonify({"owner": data["owner"]})
+@app.route('/update', methods=['POST'])
+def update():
+    global data
+    content = request.json
+    if not content:
+        return jsonify({"error": "Aucun JSON reçu"}), 400
 
-@app.route("/update", methods=["POST"])
-def update_owner():
-    json_data = request.get_json()
-    if "owner" in json_data:
-        data["owner"] = json_data["owner"]
-        return jsonify({"message": "Mise à jour réussie"}), 200
-    return jsonify({"error": "Donnée manquante"}), 400
+    owner = content.get("owner")
+    pl = content.get("PL")
+
+    if owner:
+        data["owner"] = owner
+    if pl:
+        data["PL"] = pl
+
+    return jsonify({"message": "Données mises à jour"}), 200
+
+@app.route('/owner', methods=['GET'])
+def get_owner():
+    return jsonify(data)
+
+if __name__ == '__main__':
+    app.run()
