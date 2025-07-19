@@ -1,3 +1,5 @@
 flask
 gunicorn
 flask-cors
+discord.py==2.3.2
+requests
