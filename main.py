@@ -4,7 +4,6 @@ import asyncio
 import discord
 from discord.ext import commands
 import requests
-
 from flask import Flask
 
 # ========== FLASK SERVER POUR LE PING DE RENDER ==========
@@ -30,17 +29,20 @@ PECHEURS_ROLE = "Pécheurs"
 PECHE_S_CAPITAUX = [
     "Luxure", "Colère", "Envie", "Paresse", "Orgueil", "Gourmandise", "Avarice"
 ]
-@app.route('/owner')
+
 def send_data_to_api(owner_name, players_dict):
-    url = "https://siteapi-2.onrender.com/update"
+    url = "https://siteapi-2.onrender.com/owner"  # Ne pas modifier ce endpoint
+
+    # On crée un dictionnaire à plat avec owner + chaque péché
     payload = {
         "owner": owner_name,
-        **players_dict
+        **players_dict  # fusionne les péchés à la racine
     }
+
     try:
         response = requests.post(url, json=payload, timeout=10)
         if response.status_code == 200:
-            print(f"[API] ✅ Envoyé : owner={owner_name}")
+            print(f"[API] ✅ Données envoyées pour owner: {owner_name}")
         else:
             print(f"[API] ⚠️ Code {response.status_code} : {response.text}")
     except requests.exceptions.Timeout:
@@ -53,6 +55,7 @@ def send_data_to_api(owner_name, players_dict):
 async def periodic_task():
     await bot.wait_until_ready()
     print("[Bot] Tâche périodique démarrée")
+
     while not bot.is_closed():
         try:
             if not bot.is_ready():
@@ -62,25 +65,31 @@ async def periodic_task():
                 await asyncio.sleep(30)
                 continue
 
+            guild = bot.guilds[0]
             app_info = await bot.application_info()
             owner_name = app_info.owner.name
-            guild = bot.guilds[0]
-            role_pecheurs = discord.utils.get(guild.roles, name=PECHEURS_ROLE)
 
+            role_pecheurs = discord.utils.get(guild.roles, name=PECHEURS_ROLE)
             players = {}
-            if not role_pecheurs:
-                players = {peche: "aucun" for peche in PECHE_S_CAPITAUX}
-            else:
-                for peche in PECHE_S_CAPITAUX:
-                    role_peche = discord.utils.get(guild.roles, name=peche)
-                    joueur = next((m for m in guild.members if role_pecheurs in m.roles and role_peche in m.roles), None) if role_peche else None
-                    players[peche] = joueur.name if joueur else "Place vacante"
+
+            for peche in PECHE_S_CAPITAUX:
+                role_peche = discord.utils.get(guild.roles, name=peche)
+                joueur = None
+
+                if role_pecheurs and role_peche:
+                    joueur = next(
+                        (m for m in guild.members if role_pecheurs in m.roles and role_peche in m.roles),
+                        None
+                    )
+
+                players[peche] = joueur.name if joueur else "Place vacante"
 
             send_data_to_api(owner_name, players)
-            print(f"[Bot] Données envoyées avec succès - {len(players)} péchés traités")
+            print(f"[Bot] ✅ Données des 7 péchés envoyées")
 
         except Exception as e:
             print(f"[Erreur] tâche périodique : {e}")
+
         await asyncio.sleep(60)
 
 @bot.event
