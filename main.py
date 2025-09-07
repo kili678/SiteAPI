@@ -6,14 +6,14 @@ CORS(app)  # 👈 active CORS pour toutes les routes
 
 # Stockage en mémoire vive
 data = {
-    "owner": "Aucun encore",
-    "Luxure": "aucun",
-    "Colère": "aucun",
-    "Envie": "aucun",
-    "Paresse": "aucun",
-    "Orgueil": "aucun",
-    "Gourmandise": "aucun",
-    "Avarice": "aucun"
+    "owner": "Erreur",
+    "Luxure": {"name": "Erreur", "avatar": None},
+    "Colère": {"name": "Erreur", "avatar": None},
+    "Envie": {"name": "Erreur", "avatar": None},
+    "Paresse": {"name": "Erreur", "avatar": None},
+    "Orgueil": {"name": "Erreur", "avatar": None},
+    "Gourmandise": {"name": "Erreur", "avatar": None},
+    "Avarice": {"name": "Erreur", "avatar": None}
 }
 
 @app.route("/owner", methods=["GET"])
@@ -30,11 +30,12 @@ def update_data():
 
     data["owner"] = json_data["owner"]
 
-    for peche in data:
-        if peche != "owner" and peche in json_data:
-            data[peche] = json_data[peche]
-
+    if "players" in json_data:
+        for peche, info in json_data["players"].items():
+            if peche in data:
+                data[peche] = info  # 👈 info = {"name": "...", "avatar": "..."}
     return jsonify({"message": "Données mises à jour avec succès"}), 200
 
 if __name__ == "__main__":
     app.run(debug=True)
+
