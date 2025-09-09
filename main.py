@@ -1,13 +1,15 @@
+# api.py
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # 👈 import du module
+from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # 👈 active CORS pour toutes les routes
+CORS(app)
 
-# Stockage en mémoire vive
-# Stockage en mémoire vive
+PECHES = ["Luxure", "Colère", "Envie", "Paresse", "Orgueil", "Gourmandise", "Avarice"]
+
 data = {
     "owner": "Erreur",
+    # pêcher keys
     "Luxure": {"name": "Erreur", "avatar": None},
     "Colère": {"name": "Erreur", "avatar": None},
     "Envie": {"name": "Erreur", "avatar": None},
@@ -15,12 +17,16 @@ data = {
     "Orgueil": {"name": "Erreur", "avatar": None},
     "Gourmandise": {"name": "Erreur", "avatar": None},
     "Avarice": {"name": "Erreur", "avatar": None},
-    "annonces": []  # 👈 nouveau champ pour stocker les messages
+    "annonces": []
 }
 
 @app.route("/owner", methods=["GET"])
 def get_owner_and_peches():
-    return jsonify(data)
+    # renvoie uniquement owner + péchés (pas annonces)
+    out = {"owner": data.get("owner", "Erreur")}
+    for p in PECHES:
+        out[p] = data.get(p, {"name": "Erreur", "avatar": None})
+    return jsonify(out)
 
 @app.route("/annonces", methods=["GET"])
 def get_annonces():
@@ -41,14 +47,14 @@ def update_data():
             if peche in data:
                 data[peche] = info
 
-    # 👇 Nouveau : on stocke les annonces
     if "annonces" in json_data:
-        data["annonces"] = json_data["annonces"]
+        # validation simple : must be list
+        if isinstance(json_data["annonces"], list):
+            data["annonces"] = json_data["annonces"]
+        else:
+            print("[update] annonces non-liste")
 
     return jsonify({"message": "Données mises à jour avec succès"}), 200
-    
 
 if __name__ == "__main__":
-    app.run(debug=True)
-
-
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
