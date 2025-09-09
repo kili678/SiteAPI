@@ -5,6 +5,7 @@ app = Flask(__name__)
 CORS(app)  # 👈 active CORS pour toutes les routes
 
 # Stockage en mémoire vive
+# Stockage en mémoire vive
 data = {
     "owner": "Erreur",
     "Luxure": {"name": "Erreur", "avatar": None},
@@ -13,12 +14,17 @@ data = {
     "Paresse": {"name": "Erreur", "avatar": None},
     "Orgueil": {"name": "Erreur", "avatar": None},
     "Gourmandise": {"name": "Erreur", "avatar": None},
-    "Avarice": {"name": "Erreur", "avatar": None}
+    "Avarice": {"name": "Erreur", "avatar": None},
+    "annonces": []  # 👈 nouveau champ pour stocker les messages
 }
 
 @app.route("/owner", methods=["GET"])
 def get_owner_and_peches():
     return jsonify(data)
+
+@app.route("/annonces", methods=["GET"])
+def get_annonces():
+    return jsonify({"annonces": data.get("annonces", [])})
 
 @app.route("/update", methods=["POST"])
 def update_data():
@@ -33,9 +39,16 @@ def update_data():
     if "players" in json_data:
         for peche, info in json_data["players"].items():
             if peche in data:
-                data[peche] = info  # 👈 info = {"name": "...", "avatar": "..."}
+                data[peche] = info
+
+    # 👇 Nouveau : on stocke les annonces
+    if "annonces" in json_data:
+        data["annonces"] = json_data["annonces"]
+
     return jsonify({"message": "Données mises à jour avec succès"}), 200
+    
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
