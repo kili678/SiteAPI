@@ -17,7 +17,8 @@ data = {
     "Gourmandise": {"name": "Erreur", "avatar": None},
     "Avarice": {"name": "Erreur", "avatar": None},
     "annonces": [],
-    "ClassementPeche": []
+    "ClassementPeche": [],
+    "ClassementJeux": [],
 }
 
 @app.route("/owner", methods=["GET"])
@@ -34,8 +35,10 @@ def get_annonces():
     
 @app.route("/classement", methods=["GET"])
 def get_classement():
-    return jsonify({"ClassementPeche": data.get("ClassementPeche", [])})
-
+    return jsonify({
+        "ClassementPeche": data.get("ClassementPeche", []),
+        "ClassementJeux": data.get("ClassementJeux", [])
+    })
 @app.route("/update", methods=["POST"])
 def update_data():
     json_data = request.get_json()
@@ -64,8 +67,15 @@ def update_data():
         else:
             print("[update] ClassementPeche non-liste")
             
+    if "ClassementJeux" in json_data:
+        if isinstance(json_data["ClassementJeux"], list):
+            data["ClassementJeux"] = json_data["ClassementJeux"]
+        else:
+            print("[update] ClassementJeux non-liste")
+            
     return jsonify({"message": "Données mises à jour avec succès"}), 200
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
 
