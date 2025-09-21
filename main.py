@@ -9,7 +9,6 @@ PECHES = ["Luxure", "Colère", "Envie", "Paresse", "Orgueil", "Gourmandise", "Av
 
 data = {
     "owner": "Erreur",
-    # pêcher keys
     "Luxure": {"name": "Erreur", "avatar": None},
     "Colère": {"name": "Erreur", "avatar": None},
     "Envie": {"name": "Erreur", "avatar": None},
@@ -17,7 +16,8 @@ data = {
     "Orgueil": {"name": "Erreur", "avatar": None},
     "Gourmandise": {"name": "Erreur", "avatar": None},
     "Avarice": {"name": "Erreur", "avatar": None},
-    "annonces": []
+    "annonces": [],
+    "ClassementPeche": []
 }
 
 @app.route("/owner", methods=["GET"])
@@ -31,6 +31,10 @@ def get_owner_and_peches():
 @app.route("/annonces", methods=["GET"])
 def get_annonces():
     return jsonify({"annonces": data.get("annonces", [])})
+    
+@app.route("/classement", methods=["GET"])
+def get_classement():
+    return jsonify({"ClassementPeche": data.get("ClassementPeche", [])})
 
 @app.route("/update", methods=["POST"])
 def update_data():
@@ -53,8 +57,15 @@ def update_data():
             data["annonces"] = json_data["annonces"]
         else:
             print("[update] annonces non-liste")
-
+            
+    if "ClassementPeche" in json_data:
+        if isinstance(json_data["ClassementPeche"], list):
+            data["ClassementPeche"] = json_data["ClassementPeche"]
+        else:
+            print("[update] ClassementPeche non-liste")
+            
     return jsonify({"message": "Données mises à jour avec succès"}), 200
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
