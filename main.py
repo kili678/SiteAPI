@@ -19,7 +19,8 @@ data = {
     "annonces": [],
     "ClassementPeche": [],
     "ClassementJeux": [],
-    "apotres": {p: [] for p in PECHES}  # nouveau
+    "apotres": {p: [] for p in PECHES},  # nouveau
+    "membres": []
 }
 
 @app.route("/owner", methods=["GET"])
@@ -37,7 +38,11 @@ def get_annonces():
 @app.route("/apotres", methods=["GET"])
 def get_apotres():
     return jsonify({"apotres": data.get("apotres", {})})
-  
+    
+@app.route("/membres", methods=["GET"])
+def get_membres():
+    return jsonify({"membres": data.get("membres", [])})
+
 @app.route("/classement", methods=["GET"])
 def get_classement():
     return jsonify({
@@ -65,6 +70,12 @@ def update_data():
         else:
             print("[update] apotres non-dict")
             
+    if "membres" in json_data:
+        if isinstance(json_data["membres"], list):
+            data["membres"] = json_data["membres"]
+        else:
+            print("[update] membres non-liste")
+            
     if "annonces" in json_data:
         # validation simple : must be list
         if isinstance(json_data["annonces"], list):
@@ -88,6 +99,7 @@ def update_data():
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
 
 
 
